@@ -21,9 +21,9 @@ func init() {
 }
 
 func main() {
-	repoURL := "https://github.com/sagnik3788/gitops-yamls.git"
+	repoURL := "https://github.com/sagnik3788/Gitops-controller.git"
 	branch := "main"
-	path := "/tmp/gitops"
+	path := "/tmp/gitops/manifests"
 
 	// Setup Kubernetes manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
