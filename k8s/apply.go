@@ -14,8 +14,8 @@ import (
 )
 
 // apply manifests on our local cluster
-func ApplyManifest(path string, k8sClient client.Client, scheme *runtime.Scheme) error {
-	files, err := filepath.Glob(filepath.Join(path, ".yaml"))
+func ApplyManifests(path string, k8sClient client.Client, scheme *runtime.Scheme) error {
+	files, err := filepath.Glob(filepath.Join(path, "*.yaml"))
 	if err != nil {
 		return err
 	}
