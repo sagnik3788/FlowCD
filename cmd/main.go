@@ -6,15 +6,26 @@ import (
 
 	"github.com/sagnik3788/gitops-controller/git"
 	"github.com/sagnik3788/gitops-controller/k8s"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-func main() {
-	repoURL := "https://github.com/sagnik3788/Gitops-controller.git"
-	branch := "main"
-	path := "manifest"
+// Define the scheme
+var scheme = runtime.NewScheme()
 
-	//setup k8s client
+func init() {
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+}
+
+func main() {
+	repoURL := "https://github.com/sagnik3788/gitops-yamls.git"
+	branch := "main"
+	path := "/tmp/gitops"
+
+	// Setup Kubernetes manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 	})
@@ -22,7 +33,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Go routine to sync the repo and apply manifests to the cluster
 	go func() {
 		for {
 			log.Println("Syncing repo and applying manifests...")
