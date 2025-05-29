@@ -15,7 +15,7 @@ spec:
       port: 443
       targetPort: 443
       nodePort: 30443
-    - name: dashboard
+    - name: dashboard 
       port: 8080
       targetPort: 8080  
       nodePort: 30090  # for access traefik ui
