@@ -23,7 +23,7 @@ func init() {
 func main() {
 	repoURL := "https://github.com/sagnik3788/Gitops-controller.git"
 	branch := "main"
-	path := "/tmp/gitops/manifests"
+	//path := "/tmp/gitops/manifest"
 
 	// Setup Kubernetes manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
@@ -36,11 +36,11 @@ func main() {
 	go func() {
 		for {
 			log.Println("Syncing repo and applying manifests...")
-			err := git.CloneOrPull(repoURL, branch, path)
+			err := git.CloneOrPull(repoURL, branch, "/tmp/gitops")
 			if err != nil {
 				log.Println("Git sync failed:", err)
 			} else {
-				err = k8s.ApplyManifests(path, mgr.GetClient(), mgr.GetScheme())
+				err = k8s.ApplyManifests("/tmp/gitops/manifests", mgr.GetClient(), mgr.GetScheme())
 				if err != nil {
 					log.Println("Apply failed:", err)
 				}

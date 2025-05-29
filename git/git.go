@@ -30,9 +30,14 @@ func CloneOrPull(repoUrl, branch, path string) error {
 		return err
 	}
 
-	return w.Pull(&git.PullOptions{
+	err = w.Pull(&git.PullOptions{
 		RemoteName:    "origin",
 		ReferenceName: plumbing.NewBranchReferenceName(branch),
 	})
+	if err == git.NoErrAlreadyUpToDate {
+		return nil // Not an error, just skip applying
+	}
+
+	return err
 
 }
