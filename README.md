@@ -1,6 +1,6 @@
 #  Gitops-controller
 
-A lightweight GitOps controller for Kubernetes clusters inspired by Argo CD.
+A lightweight GitOps controller for Kubernetes clusters inspired by Pipecd.
 
 ## Features
 
