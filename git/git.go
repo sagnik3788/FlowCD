@@ -35,7 +35,7 @@ func CloneOrPull(repoUrl, branch, path string) error {
 		ReferenceName: plumbing.NewBranchReferenceName(branch),
 	})
 	if err == git.NoErrAlreadyUpToDate {
-		return nil // Not an error, just skip applying
+		return nil // just skip applying
 	}
 
 	return err
