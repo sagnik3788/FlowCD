@@ -1,1 +1,30 @@
 #  Gitops-controller
+
+#  GitOps Controller
+
+A lightweight GitOps controller for Kubernetes clusters inspired by Argo CD.
+
+## Features
+
+- **Quick sync with Git repo**  
+  Automatically syncs manifests from your Git repository.
+
+- **Deploy to local Kubernetes cluster**  
+  Applies synced manifests to keep your cluster in sync with Git.
+
+## Planned Features
+
+- RBAC support for secure access  
+- Pipeline sync 
+- Unit tests for robustness
+
+## Getting Started
+
+1. Configure your Git repository URL in the controller settings.  
+2. Run the controller in your Kubernetes cluster or locally.  
+3. The controller will sync and apply manifests from Git automatically.
+
+## How to Access Traefik UI
+
+- Traefik is deployed as part of this setup with a NodePort service.  
+- Access the Traefik dashboard UI using the cluster node IP and port `30090`.
