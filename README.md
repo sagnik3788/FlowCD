@@ -12,10 +12,11 @@ A lightweight GitOps controller for Kubernetes clusters inspired by Pipecd.
 
 ## Planned Features
 
-- RBAC support for secure access  
-- Pipeline sync 
-- Unit tests for robustness
-
+- Drift Detection
+- Sync Strategies + metrics
+- cli for interaction with cp
+- Application CRD
+- rollback and multi-cluster
 ## Getting Started
 
 1. Configure your Git repository URL in the controller settings.  
