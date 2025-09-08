@@ -1,0 +1,7 @@
+main arch will follow argo cd 
+like main three components 
+1. flowcd server 
+2. flowcd controller 
+3. flowctl for interaction(+tui)
+
+first we will implement the crd and the controller as this the main block 
