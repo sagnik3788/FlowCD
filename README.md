@@ -1,6 +1,6 @@
 #  FlowCD
 
-A lightweight GitOps controller for Kubernetes clusters inspired by Pipecd.
+A lightweight GitOps controller for Kubernetes clusters inspired by Argo CD.
 
 ## Features
 
