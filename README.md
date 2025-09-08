@@ -1,4 +1,4 @@
-#  Gitops-controller
+#  FlowCD
 
 A lightweight GitOps controller for Kubernetes clusters inspired by Pipecd.
 
