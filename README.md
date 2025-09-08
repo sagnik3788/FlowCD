@@ -14,7 +14,7 @@ A lightweight GitOps controller for Kubernetes clusters inspired by Pipecd.
 
 - Drift Detection
 - Sync Strategies + metrics
-- cli for interaction with cp
+- cli for interaction with cp(flowctl)
 - Application CRD
 - rollback and multi-cluster
 ## Getting Started
