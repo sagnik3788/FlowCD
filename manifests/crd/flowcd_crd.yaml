@@ -1,0 +1,178 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app.kubernetes.io/name: flowcds.flowcd.io
+    app.kubernetes.io/part-of: flowcd
+  name: flowcds.flowcd.io
+spec:
+  group: flowcd.io
+  names:
+    kind: FlowCD
+    listKind: FlowCDList
+    plural: flowcds
+    singular: flowcd
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - source
+                - destination
+              properties:
+                source:
+                  type: object
+                  properties:
+                    repoURL: 
+                      type: string
+                      description: "Git repository URL"
+                    branch:
+                      type: string
+                      description: "Git branch to sync from"
+                    path:
+                      type: string
+                      default: ""
+                      description: "Path within the repository"
+                  required:
+                    - repoURL
+                    - branch
+                destination:
+                  type: object
+                  properties:
+                    server:
+                      type: string
+                      default: "https://kubernetes.default.svc"
+                      description: "Target Kubernetes cluster API server URL"
+                    namespace:
+                      type: string
+                      description: "Target namespace where resources will be deployed"
+                  required:
+                    - namespace
+                deploymentStrategy:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: ["QuickSync", "Pipeline", "Custom"]
+                      default: "QuickSync"
+                      description: "Deployment strategy type"
+                    quickSync:
+                      type: object
+                      properties:
+                        prune:
+                          type: boolean
+                          default: false
+                          description: "Delete resources not present in git"
+                        # I dont think we need this
+                        # force:
+                        #   type: boolean
+                        #   default: false
+                        #   description: "Force apply resources"
+                    pipeline:
+                      type: object
+                      properties:
+                        stages:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum: ["Deploy", "Wait", "Approval"]
+                              # config:
+                              #   type: object
+                              #   x-kubernetes-preserve-unknown-fields: true
+                    custom:
+                      type: object
+                      properties:
+                        script:
+                          type: string
+                          description: "Custom deployment script"
+                        timeout:
+                          type: string
+                          default: "10m"
+                          description: "Timeout for custom script execution"
+                # syncPolicy:
+                #   type: object
+                #   properties:
+                #     automated:
+                #       type: object
+                #       properties:
+                #         prune:
+                #           type: boolean
+                #           default: false
+                #           description: "Automatically prune resources"
+                #         selfHeal:
+                #           type: boolean
+                #           default: false
+                #           description: "Automatically sync when cluster state changes"
+                #     retry:
+                #       type: object
+                #       properties:
+                #         limit:
+                #           type: integer
+                #           default: 5
+                #           description: "Number of sync retries"
+                #         backoff:
+                #           type: object
+                #           properties:
+                #             duration:
+                #               type: string
+                #               default: "5s"
+                #             factor:
+                #               type: integer
+                #               default: 2
+                #             maxDuration:
+                #               type: string
+                #               default: "3m"
+
+            ## we dont need this rn it will be part of the livestate feature
+            status:
+              type: object
+              properties:
+                sync:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: ["Synced", "OutOfSync", "Unknown", "Failed"]
+                      description: "Sync status of the application"
+                    revision:
+                      type: string
+                      description: "Last synced git commit SHA"
+                    lastSyncTime:
+                      type: string
+                      format: date-time
+                      description: "When was the last sync attempt"
+                message:
+                  type: string
+                  description: "Human readable status message"
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["True", "False", "Unknown"]
+                      lastUpdateTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+                observedGeneration:
+                  type: integer
+                  description: "The generation observed by the controller"

@@ -5,3 +5,6 @@ like main three components
 3. flowctl for interaction(+tui)
 
 first we will implement the crd and the controller as this the main block 
+
+in the crd we will define the template we want to follow like source means repo url branch ns,
+destination for cluster , and sync stagies same as like pipecd quick-sync, pipeline-sync and custom-sync 
