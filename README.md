@@ -4,7 +4,7 @@ A lightweight GitOps controller for Kubernetes clusters inspired by Argo CD.
 
 ## why i am building this?
 
-Managing and deploying gitops applications with argocd or Fluxcd is quite complex as we want to understand each of the compenent how it working like as in argo we have two servers and controller for syncing and ui ,cli. Now i want make things simple for gitops deployment in k8s so i am building this Flowcd, just write your custom resouse like this 
+Managing and deploying gitops applications with argocd or Fluxcd is quite complex as we want to understand each of the component how it working like as in argo we have two servers and controller for syncing and ui ,cli. Now i want make things simple for gitops deployment in k8s so i am building this Flowcd, just write your custom resouse like this 
 
 ```yaml
 apiVersion: flowcd.io/v1alpha1
