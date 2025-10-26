@@ -23,7 +23,7 @@ spec:
     type: "QuickSync"
 ```
 
-and write `kubectl apply -f flowcd.yaml` and your flowcd deployed on the default ns
+and write `kubectl apply -f flowcd.yaml` and your FlowCD application will be deployed to the default namespace
 
 
 no complexity simple architecture which you can scale easily and separately
