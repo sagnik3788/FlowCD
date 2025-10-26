@@ -2,28 +2,41 @@
 
 A lightweight GitOps controller for Kubernetes clusters inspired by Argo CD.
 
-## Features
+## why i am building this?
 
-- **Quick sync with Git repo**  
-  Automatically syncs manifests from your Git repository.
+Managing and deploying gitops applications with argocd or Fluxcd is quite complex as we want to understand each of the compenent how it working like as in argo we have two servers and controller for syncing and ui ,cli. Now i want make things simple for gitops deployment in k8s so i am building this Flowcd, just write your custom resouse like this 
 
-- **Deploy to local Kubernetes cluster**  
-  Applies synced manifests to keep your cluster in sync with Git.
+```yaml
+apiVersion: flowcd.io/v1alpha1
+kind: FlowCD
+metadata:
+  name: nginx-app
+  namespace: default
+spec:
+  source:
+    repoURL: "https://github.com/sagnik3788/Gitops-controller.git"
+    branch: "main"
+    path: "manifests"
+  destination:
+    namespace: "default"
+  deploymentStrategy:
+    type: "QuickSync"
+```
 
-## Planned Features
+and write `kubectl apply -f flowcd.yaml` and your flowcd deployed on the default ns
 
-- Drift Detection
-- Sync Strategies + metrics
-- cli for interaction with cp(flowctl)
-- Application CRD
-- rollback and multi-cluster
-## Getting Started
 
-1. Configure your Git repository URL in the controller settings.  
-2. Run the controller in your Kubernetes cluster or locally.  
-3. The controller will sync and apply manifests from Git automatically.
+no complexity simple architecture which you can scale easily and separately
+we divided into 3 components
 
-## How to Access Traefik UI
+1. flowcd server 
+2. flowcd controller 
+3. flowctl cli
 
-- Traefik is deployed as part of this setup with a NodePort service.  
-- Access the Traefik dashboard UI using the cluster node IP and port `30090`.
+I liked the sync strategies of pipecd so i follow those  strategies 
+
+- quick-sync
+- pipeline-sync
+- custom-sync
+
+I know this project is not perfect for production env but ig we can improve it right :)
