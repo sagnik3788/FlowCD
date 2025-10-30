@@ -4,7 +4,19 @@ like main three components
 2. flowcd controller 
 3. flowctl for interaction(+tui)
 
-first we will implement the crd and the controller as this the main block 
+- first we will implement the crd and the controller as this the main block 
 
-in the crd we will define the template we want to follow like source means repo url branch ns,
+- in the crd we will define the template we want to follow like source means repo url branch ns,
 destination for cluster , and sync stagies same as like pipecd quick-sync, pipeline-sync and custom-sync 
+
+- For creating the controller we will define the types we are using crd
+
+- How the controller will work? why we need this?
+- so whenever anyone create a custom resource based on our template(crd) we need to monitor it and apply on our cluster right, means in the custom resourse a user will give the repo url , branch path of the manifest files what he want to deploy and where means in which namespace of his k8s cluster 
+
+For build this logic we need the controller --> main task will be a starting the controller  then start a reconcile logic which will clone/pull the repo changes and apply on the cluster thats how all the controller of all gitops tools works like pipcd or argocd, just the main arch is different 
+
+- How to build the controller? as we have created the types based on crd now we can implement basic controller logic with reconcile which only compile and running with logging , next we will implement git logic and k8s and caching repo etc 
+
+- Buidling the reconcile logic is quite easy we just need to create a empty object say template of our cr, then get request to the k8s api next log everything like repo url, branch etc
+one thing i jsut know like to crud in k8s api we need to setup scheme  which actually convert json to go structs or vice versa

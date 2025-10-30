@@ -1,50 +1,58 @@
 package main
 
 import (
-    "context"
     "flag"
-    "log"
     "os"
 
     "k8s.io/apimachinery/pkg/runtime"
-    "k8s.io/client-go/kubernetes"
-    "k8s.io/client-go/tools/clientcmd"
-    "sigs.k8s.io/controller-runtime/pkg/client/config"
-    "sigs.k8s.io/controller-runtime/pkg/manager"
-    "sigs.k8s.io/controller-runtime/pkg/manager/signals"
+    ctrl "sigs.k8s.io/controller-runtime"
+    "sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-    flowcdv1alpha1 "github.com/yourusername/flowcd/pkg/apis/flowcd/v1alpha1"
-    "github.com/yourusername/flowcd/pkg/controller"
+    flowcdv1alpha1 "github.com/sagnik3788/FlowCD/pkg/apis/flowcd/v1alpha1"
+    "github.com/sagnik3788/FlowCD/pkg/controller"
 )
 
 var (
-    scheme = runtime.NewScheme()
+    scheme   = runtime.NewScheme()
+    setupLog = ctrl.Log.WithName("setup")
 )
 
 func init() {
+    // Add FlowCD types to scheme
     flowcdv1alpha1.AddToScheme(scheme)
 }
 
 func main() {
-    kubeconfig := flag.String("kubeconfig", os.Getenv("KUBECONFIG"), "absolute path to the kubeconfig file")
+    // Setup logger
+    ctrl.SetLogger(zap.New())
+
+    // Parse flags
+    var kubeconfig string
+    flag.StringVar(&kubeconfig, "kubeconfig", "", "path to kubeconfig file")
     flag.Parse()
 
-    cfg, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+    // Create manager
+    mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+        Scheme: scheme,
+    })
     if err != nil {
-        log.Fatalf("Failed to build kubeconfig: %v", err)
+        setupLog.Error(err, "unable to create manager")
+        os.Exit(1)
     }
 
-    mgr, err := manager.New(cfg, manager.Options{Scheme: scheme})
-    if err != nil {
-        log.Fatalf("Failed to create manager: %v", err)
+    // Setup FlowCD controller
+    if err = (&controller.FlowCDReconciler{
+        Client: mgr.GetClient(),
+        Scheme: mgr.GetScheme(),
+        Log:    ctrl.Log.WithName("controllers").WithName("FlowCD"),
+    }).SetupWithManager(mgr); err != nil {
+        setupLog.Error(err, "unable to create controller", "controller", "FlowCD")
+        os.Exit(1)
     }
 
-    if err := controller.SetupController(mgr); err != nil {
-        log.Fatalf("Failed to setup controller: %v", err)
-    }
-
-    log.Println("Starting the FlowCD controller...")
-    if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
-        log.Fatalf("Failed to start manager: %v", err)
+    setupLog.Info("starting manager")
+    if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+        setupLog.Error(err, "problem running manager")
+        os.Exit(1)
     }
 }

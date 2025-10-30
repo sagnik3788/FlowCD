@@ -1,4 +1,4 @@
-module github.com/sagnik3788/gitops-controller
+module github.com/sagnik3788/FlowCD
 
 go 1.24.3
 
