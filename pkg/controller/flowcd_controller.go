@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -20,7 +19,13 @@ type FlowCDReconciler struct {
 	Scheme *runtime.Scheme
 
 	// Logger
-	Log    logr.Logger
+	Log logr.Logger
+}
+
+func (r *FlowCDReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&flowcdv1alpha1.FlowCD{}).
+		Complete(r)
 }
 
 func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -33,14 +38,14 @@ func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	// Log what we found
-	log.Info("Reconciling FlowCD", 
-        "repoURL", flowcd.Spec.Source.RepoURL,
-        "branch", flowcd.Spec.Source.Branch,
-        "namespace", flowcd.Spec.Destination.Namespace)
-    
-    // TODO: Add Git operations here
-    // TODO: Add K8s operations here  
-    // TODO: Update status here
-    
-    return ctrl.Result{}, nil
+	log.Info("Reconciling FlowCD",
+		"repoURL", flowcd.Spec.Source.RepoURL,
+		"branch", flowcd.Spec.Source.Branch,
+		"namespace", flowcd.Spec.Destination.Namespace)
+
+	// TODO: Add Git operations here
+	// TODO: Add K8s operations here
+	// TODO: Update status here
+
+	return ctrl.Result{}, nil
 }

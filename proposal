@@ -20,3 +20,10 @@ For build this logic we need the controller --> main task will be a starting the
 
 - Buidling the reconcile logic is quite easy we just need to create a empty object say template of our cr, then get request to the k8s api next log everything like repo url, branch etc
 one thing i jsut know like to crud in k8s api we need to setup scheme  which actually convert json to go structs or vice versa
+
+- while building i came into an error
+
+'cannot use &FlowCD{} as "runtime".Object value in argument to scheme.AddKnownTypes: 
+*FlowCD does not implement "runtime.Object" (missing method DeepCopyObject)'
+
+so our custum type(2) missing DeepCopyObject() method , so instead manually we gen kubebuilder files, this method help to prevent race cond like sinarious like staus= sync or status = failure at same time
