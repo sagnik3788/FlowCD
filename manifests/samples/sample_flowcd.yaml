@@ -1,14 +1,15 @@
 apiVersion: flowcd.io/v1alpha1
 kind: FlowCD
 metadata:
-  name: nginx-app
-  namespace: default
+  name: test-flowcd
 spec:
   source:
-    repoURL: "https://github.com/sagnik3788/Gitops-controller.git"
+    repoURL: "https://github.com/sagnik3788/test-repo.git"
     branch: "main"
-    path: "manifests"
+    path: "/manifests"
   destination:
     namespace: "default"
   deploymentStrategy:
     type: "QuickSync"
+    quickSync:
+      prune: false

@@ -23,27 +23,23 @@ type FlowCDList struct {
 	Items           []FlowCD `json:"items"`
 }
 
-// +kubebuilder:object:generate=true
 type FlowCDSpec struct {
 	Source             ApplicationSource      `json:"source"`
 	Destination        ApplicationDestination `json:"destination"`
 	DeploymentStrategy DeploymentStrategy     `json:"deploymentStrategy,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type ApplicationSource struct {
 	RepoURL string `json:"repoURL"`
 	Branch  string `json:"branch"`
 	Path    string `json:"path,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type ApplicationDestination struct {
 	Server    string `json:"server,omitempty"`
 	Namespace string `json:"namespace"`
 }
 
-// +kubebuilder:object:generate=true
 type DeploymentStrategy struct {
 	Type      string             `json:"type"`
 	QuickSync *QuickSyncStrategy `json:"quickSync,omitempty"`
@@ -51,36 +47,30 @@ type DeploymentStrategy struct {
 	Custom    *CustomStrategy    `json:"custom,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type QuickSyncStrategy struct {
 	Prune bool `json:"prune,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type PipelineStrategy struct {
 	Stages []PipelineStage `json:"stages,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type PipelineStage struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 }
 
-// +kubebuilder:object:generate=true
 type CustomStrategy struct {
 	Script  string `json:"script"`
 	Timeout string `json:"timeout,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type FlowCDStatus struct {
 	Sync       SyncStatus         `json:"sync,omitempty"`
 	Message    string             `json:"message,omitempty"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
-// +kubebuilder:object:generate=true
 type SyncStatus struct {
 	Status       string       `json:"status,omitempty"`
 	Revision     string       `json:"revision,omitempty"`
