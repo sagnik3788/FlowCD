@@ -4,7 +4,7 @@ metadata:
   name: test-flowcd
 spec:
   source:
-    repoURL: "https://github.com/sagnik3788/test-repo.git"
+    repoURL: "https://github.com/sagnik3788/FlowCD-Examples"
     branch: "main"
     path: "/manifests"
   destination:
