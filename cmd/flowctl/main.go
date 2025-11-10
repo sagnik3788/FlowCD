@@ -3,24 +3,54 @@ package main
 import (
     "fmt"
     "os"
+
+    "github.com/spf13/cobra"
 )
 
-func main() {
-    fmt.Println("Welcome to FlowCTL!")
-    // Here you can add command handling logic for FlowCTL
-    if len(os.Args) < 2 {
-        fmt.Println("Please provide a command.")
-        os.Exit(1)
-    }
+const (
+    version = "0.1.0"
+    banner = `
+    ███████╗██╗      ██████╗ ██╗    ██╗ ██████╗██████╗ 
+    ██╔════╝██║     ██╔═══██╗██║    ██║██╔════╝██╔══██╗
+    █████╗  ██║     ██║   ██║██║ █╗ ██║██║     ██║  ██║
+    ██╔══╝  ██║     ██║   ██║██║███╗██║██║     ██║  ██║
+    ██║     ███████╗╚██████╔╝╚███╔███╔╝╚██████╗██████╔╝
+    ╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝  ╚═════╝╚═════╝ 
+                                                        
+    Continuous Deployment with Flow - v%s
+    `
+)
 
-    command := os.Args[1]
-    switch command {
-    case "version":
-        fmt.Println("FlowCTL version 0.1.0")
-    case "help":
-        fmt.Println("Available commands: version, help")
-    default:
-        fmt.Printf("Unknown command: %s\n", command)
+var rootCmd = &cobra.Command{
+    Use:   "flowctl",
+    Short: "FlowCD CLI - Continuous Deployment with Flow",
+    Long: fmt.Sprintf(banner, version) + `
+FlowCD is a Kubernetes-native continuous deployment tool that enables 
+GitOps workflows with advanced deployment strategies.
+
+Use flowctl to manage your FlowCD resources, pipelines, and deployments.`,
+    Run: func(cmd *cobra.Command, args []string) {
+        fmt.Printf(banner, version)
+        fmt.Println("\nUse 'flowctl --help' to see available commands")
+    },
+}
+
+var versionCmd = &cobra.Command{
+    Use:   "version",
+    Short: "Print the version number of flowctl",
+    Long:  "All software has versions. This is FlowCD's",
+    Run: func(cmd *cobra.Command, args []string) {
+        fmt.Printf("FlowCD CLI v%s\n", version)
+    },
+}
+
+func init() {
+    rootCmd.AddCommand(versionCmd)
+}
+
+func main() {
+    if err := rootCmd.Execute(); err != nil {
+        fmt.Fprintln(os.Stderr, err)
         os.Exit(1)
     }
 }

@@ -29,6 +29,7 @@ func NewGitClient(workdir string) (*GitClient, error) {
 
 // clones a repo
 func (c *GitClient) Clone(repoURL, branch string) error {
+
 	repoDir := filepath.Join(c.repoPath, sanitizeRepoName(repoURL))
 
 	if _, err := os.Stat(repoDir); err == nil {
@@ -37,6 +38,11 @@ func (c *GitClient) Clone(repoURL, branch string) error {
 			return fmt.Errorf("repository exists but failed to open: %w", err)
 		}
 		c.repo = repo
+		
+		if err := c.Pull(branch); err != nil {
+			return fmt.Errorf("failed to pull latest changes: %w", err)
+		}
+
 		return nil
 	} else if !os.IsNotExist(err) {
 		return fmt.Errorf("failed to stat repo dir: %w", err)
@@ -52,6 +58,29 @@ func (c *GitClient) Clone(repoURL, branch string) error {
 	}
 
 	c.repo = repo
+	return nil
+}
+
+func (c *GitClient) Pull(branch string) error {
+	if c.repo == nil {
+		return fmt.Errorf("no repository opened")
+	}
+
+	worktree, err := c.repo.Worktree()
+	if err != nil {
+		return fmt.Errorf("failed to get worktree: %w", err)
+	}
+
+	err = worktree.Pull(&git.PullOptions{
+		ReferenceName: getReferenceName(branch),
+		SingleBranch:  true,
+	})
+
+	// git.NoErrAlreadyUpToDate means we're already up to date
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		return fmt.Errorf("failed to pull: %w", err)
+	}
+
 	return nil
 }
 

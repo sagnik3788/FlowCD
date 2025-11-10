@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -102,5 +103,5 @@ func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		"totalResources", totalApplied,
 		"namespace", flowcd.Spec.Destination.Namespace)
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 1 * time.Minute}, nil
 }

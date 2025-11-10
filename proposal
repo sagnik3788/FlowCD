@@ -27,3 +27,6 @@ one thing i jsut know like to crud in k8s api we need to setup scheme  which act
 *FlowCD does not implement "runtime.Object" (missing method DeepCopyObject)'
 
 so our custum type(2) missing DeepCopyObject() method , so instead manually we gen kubebuilder files, this method help to prevent race cond like sinarious like staus= sync or status = failure at same time
+
+
+- now we have applied decent controller but , what if someone chnage something on the cluster manually using kubectl so we need to implement livestate and compare with desired state means on the git and update the status like synced or out of synced 
