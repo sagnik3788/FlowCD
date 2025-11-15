@@ -13,6 +13,7 @@ import (
 type GitClient struct {
 	repoPath string
 	repo     *git.Repository
+	repoDir  string
 }
 
 // creates a new git client
@@ -29,25 +30,31 @@ func NewGitClient(workdir string) (*GitClient, error) {
 
 // clones a repo
 func (c *GitClient) Clone(repoURL, branch string) error {
-
 	repoDir := filepath.Join(c.repoPath, sanitizeRepoName(repoURL))
+	c.repoDir = repoDir
 
 	if _, err := os.Stat(repoDir); err == nil {
+		// Repository exists, try to pull
 		repo, err := git.PlainOpen(repoDir)
 		if err != nil {
 			return fmt.Errorf("repository exists but failed to open: %w", err)
 		}
 		c.repo = repo
-		
+
+		// if conflict error, delete cache and re-clone
 		if err := c.Pull(branch); err != nil {
-			return fmt.Errorf("failed to pull latest changes: %w", err)
+			_ = os.RemoveAll(repoDir)
+			return c.cloneFresh(repoURL, branch, repoDir)
 		}
 
 		return nil
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("failed to stat repo dir: %w", err)
 	}
 
+	return c.cloneFresh(repoURL, branch, repoDir)
+}
+
+// cloneFresh performs a fresh clone
+func (c *GitClient) cloneFresh(repoURL, branch, repoDir string) error {
 	repo, err := git.PlainClone(repoDir, false, &git.CloneOptions{
 		URL:           repoURL,
 		ReferenceName: getReferenceName(branch),
@@ -65,7 +72,7 @@ func (c *GitClient) Pull(branch string) error {
 	if c.repo == nil {
 		return fmt.Errorf("no repository opened")
 	}
-
+	// Get worktree
 	worktree, err := c.repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("failed to get worktree: %w", err)

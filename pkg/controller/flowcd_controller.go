@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -63,6 +64,20 @@ func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	// Initialize kubernetes client
 	k8sClient := kubernetes.NewClient(r.Client, r.Scheme)
 
+	// Get live state from cluster
+	resources, err := ListResources(ctx, r.Client, flowcd.Spec.Destination.Namespace)
+	if err != nil {
+		log.Error(err, "failed to get live state from cluster")
+		return ctrl.Result{}, err
+	}
+
+	log.Info("Listed resources", "count", len(resources))
+
+	//temporary
+	for _, r := range resources {
+		log.Info("Resource found", "kind", r.Kind, "name", r.Name, "namespace", r.Namespace)
+	}
+
 	// Get manifest files
 	files, err := gitClient.GetManifest(flowcd.Spec.Source.Path)
 	if err != nil {
@@ -76,8 +91,8 @@ func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, nil
 	}
 
-	// Read and parse manifests
-	totalApplied := 0
+	// Collect all manifests from all files
+	var allManifests []unstructured.Unstructured
 	for _, file := range files {
 		data, err := os.ReadFile(file)
 		if err != nil {
@@ -89,17 +104,50 @@ func (r *FlowCDReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			return ctrl.Result{}, err
 		}
 
-		// Apply using target namespace from FlowCD spec
-		if err := k8sClient.Apply(ctx, manifests, flowcd.Spec.Destination.Namespace); err != nil {
+		allManifests = append(allManifests, manifests...)
+	}
+
+	// pass the manifests to GetDesiredState
+	desiredState, err := GetDesiredState(allManifests, flowcd.Spec.Destination.Namespace)
+	if err != nil {
+		log.Error(err, "failed to get desired state")
+		return ctrl.Result{}, err
+	}
+
+	log.Info("Desired state resources", "count", len(desiredState))
+
+	// Compare live state vs desired state to detect drift
+	drift, err := Compare(resources, desiredState)
+	if err != nil {
+		log.Error(err, "failed to compare states")
+		return ctrl.Result{}, err
+	}
+
+	log.Info("Drift detection result",
+		"hasChanges", drift.HasChanges,
+		"missing", len(drift.Missing),
+		"extra", len(drift.Extra),
+		"modified", len(drift.Modified),
+		"summary", drift.Summary)
+
+	// Only apply if there are changes
+	totalApplied := 0
+	if drift.HasChanges {
+		log.Info("Changes detected, applying manifests", "summary", drift.Summary)
+
+		// Apply all manifests
+		if err := k8sClient.Apply(ctx, allManifests, flowcd.Spec.Destination.Namespace); err != nil {
 			log.Error(err, "failed to apply manifests")
 			return ctrl.Result{}, err
 		}
 
-		totalApplied += len(manifests)
-		log.Info("Successfully applied manifests from file", "file", file, "count", len(manifests))
+		totalApplied = len(allManifests)
+		log.Info("Successfully applied manifests", "count", totalApplied)
+	} else {
+		log.Info("No changes detected, skipping apply", "summary", drift.Summary)
 	}
 
-	log.Info("Deployment completed successfully", 
+	log.Info("Deployment completed successfully",
 		"totalResources", totalApplied,
 		"namespace", flowcd.Spec.Destination.Namespace)
 
